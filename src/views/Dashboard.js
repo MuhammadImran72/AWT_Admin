@@ -1,7 +1,7 @@
 import React from "react";
 import ChartistGraph from "react-chartist";
-import {  Modal, ModalBody, ModalFooter, ModalHeader } from "reactstrap";
-// react-bootstrap components
+import { Modal, ModalBody, ModalFooter, ModalHeader } from "reactstrap";
+import axios from 'axios';
 import {
   Badge,
   Button,
@@ -16,16 +16,137 @@ import {
   OverlayTrigger,
   Tooltip,
 } from "react-bootstrap";
+import { useState  , useEffect} from "react";
 
-
-function Dashboard() {
-
-
+const  Dashboard = () => {
   const [modal, setModal] = React.useState(false);
   const toggle = () => setModal(!modal);
+
+  const [img, setImg] = useState();
+  const [slider, setSliders] = useState([]);
+  const [state, setstate] = useState({
+    title: "",
+    description: "",
+    image: "",
+  });
+
+
+  const handleChange = (e) => {
+    const name = e.target.name;
+    const value = e.target.value;
+    
+    setstate({
+      ...state,
+      [name]: value,
+    });
+  }
+  const handleImgChange = (e) => {
+    if (e.target.files && e.target.files[0]) {
+      let imgg = e.target.files[0];
+     
+      setImg(imgg);
+    }
+  };
+
+  const submitHandler = e => {
+   
+  
+    e.preventDefault();
+
+    axios
+    .post(
+      `https://api.zalimburgers.com/awt-api/home`,
+      state,
+      { headers: { 'content-type': 'application/json' } },
+    )
+    .then(response => {
+     
+      var formData = new FormData();
+      formData.append('imageFile', img);
+      console.log(img);
+   
+      //  console.log(response.data.data);
+      axios
+        .post(
+          `https://api.zalimburgers.com/awt-api/home/updateSliderImage/${response.data.data.results.insertId}`,
+          formData,
+       
+          {},
+         
+        )
+        .then(res => {
+         
+        
+         
+        })
+        .catch(error => {
+         
+      
+          console.log(error);
+        });
+
+      console.log(response.data);
+    })
+    .catch(error => {
+      console.log(error);
+    });
+    };
+
+
+    useEffect(() => {
+      
+  
+  
+      getsliders()
+       
+    
+    
+      
+    }, []);
+   
+function getsliders() {
+  axios
+  .get(`https://api.zalimburgers.com/awt-api/home`)
+  .then(res =>  setSliders(res.data.data))
+  .catch(err => console.log(err));
+}
+
   return (
     <>
       <Container fluid>
+        <div className="row">
+          <div className="col-lg-12">
+            <button class="btn btn-primary" onClick={toggle}>
+              Add New Slider
+            </button>
+          </div>
+          <br></br>
+        </div>
+        <div class="row mt-3">
+        { slider.length !=0 && slider.map(item =>(  
+          <div class="col-md-4 col-sm-12">
+           
+              <div className="inner-box">
+              <img
+               src={`https://api.zalimburgers.com/${item.image}`}
+                class="img-fluid"
+                alt="wrapkit"
+              />
+              <h3> {item.title}</h3>
+              <p>
+               {item.description}
+              </p>
+            </div>
+            </div>
+            ))}
+            
+        
+          
+        </div>
+
+        <br></br>
+        <br></br>
+
         {/* <Row>
           <Col lg="3" sm="6">
             <Card className="card-stats">
@@ -132,69 +253,6 @@ function Dashboard() {
             </Card>
           </Col>
         </Row> */}
-
-
-<div className="row">
-  <div className="col-lg-12">
-
-  <button class="btn btn-primary"  onClick={toggle}>
-                  Add New Slider 
-                </button>
-
-  </div>
-</div>
-        <div class="row">
-          <div class="col-md-4 col-sm-12">
-            <div className="inner-box">
-              <img
-                src="https://www.wrappixel.com/demos/ui-kit/wrapkit/assets/images/features/feature17/img1.jpg"
-                class="img-fluid"
-                alt="wrapkit"
-              />
-              <h3> Excellence Rooted in Trust and Commitment</h3>
-              <p>
-                Army Welfare Trust is raised with noble aspirations of offering
-                supporting hands to the welfare of families of Martyrs, soldiers
-                affected by the adversities of war & conflicts, and veterans.
-              </p>
-            </div>
-          </div>
-          <div class="col-md-4 col-sm-12">
-            <div className="inner-box">
-              <img
-                src="https://www.wrappixel.com/demos/ui-kit/wrapkit/assets/images/features/feature17/img1.jpg"
-                class="img-fluid"
-                alt="wrapkit"
-              />
-              <h3> Excellence Rooted in Trust and Commitment</h3>
-              <p>
-                Army Welfare Trust is raised with noble aspirations of offering
-                supporting hands to the welfare of families of Martyrs, soldiers
-                affected by the adversities of war & conflicts, and veterans.
-              </p>
-            </div>
-          </div>
-          <div class="col-md-4 col-sm-12">
-            <div className="inner-box">
-              <img
-                src="https://www.wrappixel.com/demos/ui-kit/wrapkit/assets/images/features/feature17/img1.jpg"
-                class="img-fluid"
-                alt="wrapkit"
-              />
-              <h3> Excellence Rooted in Trust and Commitment</h3>
-              <p>
-                Army Welfare Trust is raised with noble aspirations of offering
-                supporting hands to the welfare of families of Martyrs, soldiers
-                affected by the adversities of war & conflicts, and veterans.
-              </p>
-            </div>
-          </div>
-        </div>
-
-        <br></br>
-        <br></br>
-
-     
 
         {/* <Row>
           <Col md="8">
@@ -704,51 +762,54 @@ function Dashboard() {
         </Row> */}
       </Container>
 
-
       <Modal isOpen={modal} toggle={toggle}>
-            <ModalBody>
-           
-              <form>
-             
-                <label for="validationDefault01" class="form-label">
-                  Main Heading
-                </label>
-                <input
-                  type="text"
-                  class="form-control"
-                  id="validationDefault01"
-                  value="heading"
-                  required
-                />
+        <ModalBody>
+          <div     >
+            <label for="validationDefault01" class="form-label">
+              Main Heading
+            </label>
+            <input
+              type="text"
+              class="form-control"
+              id="validationDefault01"
+              name="title"
+              value={state.title}
+              onChange={(e) => handleChange(e)}
+              required
+            />
 
-                <label for="validationDefault02" class="form-label">
-                  Description
-                </label>
-                <input
-                  type="text"
-                  class="form-control"
-                  id="validationDefault02"
-                  value="description"
-                  required
-                />
+            <label for="validationDefault02" class="form-label">
+              Description
+            </label>
+            <input
+              type="text"
+              class="form-control"
+              id="validationDefault02"
+              name="description"
+              value={state.description}
+              onChange={(e) => handleChange(e)}
+              required
+            />
 
-                <label class="form-label" for="customFile">
-                  Default file input example
-                </label>
-                <input type="file" class="form-control" id="customFile" />
+            <label class="form-label" for="customFile">
+              Banner Image
+            </label>
+            <input type="file"
+             class="form-control"
+              id="customFile" 
+               name="imageFile"
+                accept='image/*'
+                onChange={(e) => handleImgChange(e)} />
 
-                <br></br>
-               
-              </form>
-           
-            </ModalBody>
-            <ModalFooter>
-              <Button color="primary" onClick={toggle}>
-              Add Content
-              </Button>
-            </ModalFooter>
-          </Modal>
-
+            <br></br>
+          </div>
+        </ModalBody>
+        <ModalFooter>
+          <Button color="primary"   type="submit"   onClick={submitHandler}    >
+            Add Content
+          </Button>
+        </ModalFooter>
+      </Modal>
     </>
   );
 }
