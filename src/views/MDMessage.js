@@ -1,5 +1,6 @@
 import React from "react";
-
+import { useState,useEffect } from "react";
+import axios from "axios";
 // react-bootstrap components
 import {
   Badge,
@@ -13,7 +14,113 @@ import {
   Col
 } from "react-bootstrap";
 
-function User() {
+function MDMessage() {
+  const [img, setImg] = useState();
+  const  [data,setData]=useState({
+    id:null,
+    ranking:'',
+    post:'',
+    message:''
+  })
+  const [state,setState]=useState({
+      rank:'',
+      post:'',
+      image:'',
+      message:''
+  })
+
+  const handleChange = (e) => {
+    const name = e.target.name;
+    const value = e.target.value;
+    
+    setState({
+      ...state,
+      [name]: value,
+    });
+  }
+  const handleImgChange = (e) => {
+    if (e.target.files && e.target.files[0]) {
+      let imgg = e.target.files[0];
+     
+      setImg(imgg);
+    }
+  };
+
+
+  
+  const submitHandler = e => {
+   
+  
+    e.preventDefault();
+
+    axios
+    .post(
+      `https://api.zalimburgers.com//awt-api/md`,
+      state,
+      { headers: { 'content-type': 'application/json' } },
+    )
+    .then(response => {
+     
+      var formData = new FormData();
+      formData.append('imageFile', img);
+      console.log(img);
+   
+      //  console.log(response.data.data);
+      axios
+        .post(
+          `https://api.zalimburgers.com/awt-api/md/updateMDImage/${response.data.data.results.insertId}`,
+          formData,
+       
+          {},
+         
+        )
+        .then(res => {
+         
+           getMDMessage()
+           setState({
+             rank:'',
+             post:'',
+              message:'',
+              image:''
+           })
+
+           setImg('')
+         
+        })
+        .catch(error => {
+         
+      
+          console.log(error);
+        });
+
+      console.log(response.data);
+    })
+    .catch(error => {
+      console.log(error);
+    });
+    };
+
+
+    useEffect(() => {
+      
+  
+  
+      getMDMessage()
+       
+    
+    
+      
+    }, []);
+   
+function getMDMessage() {
+  axios
+  .get(`https://api.zalimburgers.com/awt-api/md`)
+  .then(res =>  setData(res.data.data))
+  .catch(err => console.log(err));
+}
+
+
+
   return (
     <>
       <Container fluid>
@@ -64,9 +171,11 @@ function User() {
                       <Form.Group>
                         <label>Rank</label>
                         <Form.Control
-                          
-                          placeholder="Sub Heading"
+                          placeholder="Rank"
                           type="text"
+                          name="rank"
+                          value={state.rank}
+                          onChange={(e)=>handleChange(e)}
                         ></Form.Control>
                       </Form.Group>
                     </Col>
@@ -78,9 +187,11 @@ function User() {
                       <Form.Group>
                         <label> Post</label>
                         <Form.Control
-                          
                           placeholder="Heading"
                           type="text"
+                          name="post"
+                          value={state.post}
+                          onChange={(e)=>handleChange(e)}
                         ></Form.Control>
                       </Form.Group>
                     </Col>
@@ -135,11 +246,13 @@ function User() {
                         <label>About Me</label>
                         <Form.Control
                           cols="80"
-                          defaultValue="Lamborghini Mercy, Your chick she so thirsty, I'm in
-                          that two seat Lambo."
+                          
                           placeholder="Here can be your description"
                           rows="4"
                           as="textarea"
+                          name="message"
+                          value={state.message}
+                          onChange={(e)=>handleChange(e)}
                         ></Form.Control>
                       </Form.Group>
                     </Col>
@@ -148,16 +261,23 @@ function User() {
                   <Row>
                     <Col>
                     <label class="form-label" for="customFile">
-               Picture
-                </label>
-                <input type="file" class="form-control" id="customFile" />
+                       Picture
+                     </label>
+                    <input 
+                      type="file" 
+                      class="form-control" 
+                      id="customFile"
+                      name="imageFile"
+                      accept='image/*'
+                      onChange={(e) => handleImgChange(e)}
+                    />
                     
                     </Col>
                   </Row>
                   <Button
                     className="btn-fill pull-right"
-                    type="submit"
                     variant="info"
+                    onClick={(e)=>submitHandler(e)}
                   >
                     Update Profile
                   </Button>
@@ -180,9 +300,9 @@ function User() {
                     <img
                       alt="..."
                       className="avatar border-gray"
-                      src={require("assets/img/faces/face-3.jpg")}
+                      src={`https://api.zalimburgers.com/${data.image}`}
                     ></img>
-                    <h5 className="title">MANAGING DIRECTOR's COMMUNIQUE</h5>
+                    <h5 className="title">{data.post}</h5>
                   </a>
                   
                 </div>
@@ -190,11 +310,11 @@ function User() {
               </Card.Body>
               <hr></hr>
               <div className="text-center m-auto  p-3">
-                <h3>  Lt Gen Naveed Mukhtar HI (M) (Retd)</h3>
+                <h3> {data.ranking}</h3>
 
-                <p className="description">It is a great honor to take over as Managing Director of Army Welfare Trust. My motivation to join AWT lies in the distinction that this organization holds in providing a platform for the welfare and wellbeing of our troops and the wards of our Shuhada. Allah has bestowed upon me this privilege for which I seek His guidance and assistance so that I may fulfill my responsibility to the best of my abilities. I will do my utmost to uphold the trust and confidence reposed in me. lnshAIIah, you can expect an absolute merit-based approach and an atmosphere of complete professionalism.
-
-</p>
+                <p className="description">
+                  {data.message}
+                  </p>
               </div>
             </Card>
           </Col>
@@ -204,4 +324,4 @@ function User() {
   );
 }
 
-export default User;
+export default MDMessage;
