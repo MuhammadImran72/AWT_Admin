@@ -1,5 +1,5 @@
 import React from "react";
-
+import { Modal, ModalBody, ModalFooter, ModalHeader } from "reactstrap";
 // react-bootstrap components
 import {
   Badge,
@@ -12,12 +12,47 @@ import {
   Row,
   Col,
 } from "react-bootstrap";
-
+import { useState  , useEffect} from "react";
 function TableList() {
+  const [modal, setModal] = React.useState(false);
+  const toggle = () => setModal(!modal);
+  
+  const [state, setstate] = useState({
+    title: "",
+    description: "",
+    image: "",
+  });
+
+  const handleImgChange = (e) => {
+    if (e.target.files && e.target.files[0]) {
+      let imgg = e.target.files[0];
+     
+      setImg(imgg);
+    }
+  };
+
+  const handleChange = (e) => {
+    const name = e.target.name;
+    const value = e.target.value;
+    
+    setstate({
+      ...state,
+      [name]: value,
+    });
+  }
+
+  const submitHandler = e => {
+  }
   return (
     <>
       <Container fluid>
         <Row>
+
+          <Col md-6> 
+          <button class="btn btn-primary" onClick={toggle}>
+              Add Business Unit
+            </button>
+          </Col>
           <Col md="12">
             <Card className="strpied-tabled-with-hover">
               <Card.Header>
@@ -154,6 +189,71 @@ function TableList() {
           </Col>
         </Row>
       </Container>
+
+
+
+      <Modal isOpen={modal} toggle={toggle}>
+        <ModalBody>
+          <div     >
+          <label for="validationDefault01" class="form-label">
+              select Units
+            </label>
+          <select class="form-select" aria-label="Default select example">
+  <option selected>Open this select menu</option>
+  
+  <option value="Public Listed Companies"> Public Listed Companies </option>
+  <option value="Public UnListed Companies2"> Public UnListed Companies </option>
+  <option value="Private Limited Companies">Private Limited Companies</option>
+  <option value="Other Trust Units"> Other Trust Units </option>
+</select>
+<br></br>
+            <label for="validationDefault01" class="form-label">
+              Main Heading
+            </label>
+            <input
+              type="text"
+              class="form-control"
+              id="validationDefault01"
+              name="title"
+              value={state.title}
+              onChange={(e) => handleChange(e)}
+              required
+            />
+
+            <label for="validationDefault02" class="form-label">
+              Description
+            </label>
+            <input
+              type="text"
+              class="form-control"
+              id="validationDefault02"
+              name="description"
+              value={state.description}
+              onChange={(e) => handleChange(e)}
+              required
+            />
+
+            <label class="form-label" for="customFile">
+              Banner Image
+            </label>
+            <input type="file"
+             class="form-control"
+              id="customFile" 
+               name="imageFile"
+                accept='image/*'
+                onChange={(e) => handleImgChange(e)} />
+  <br></br>
+
+
+            <br></br>
+          </div>
+        </ModalBody>
+        <ModalFooter>
+          <Button color="primary"   type="submit"   onClick={submitHandler}    >
+            Add Business Unit
+          </Button>
+        </ModalFooter>
+      </Modal>
     </>
   );
 }

@@ -114,6 +114,12 @@ function getsliders() {
   return (
     <>
       <Container fluid>
+
+      <div className="row">
+          <div className="col-lg-12">
+            <h3> Army Welfare Trust Change Hero Slider Content</h3>
+            </div>
+            </div>
         <div className="row">
           <div className="col-lg-12">
             <button class="btn btn-primary" onClick={toggle}>
