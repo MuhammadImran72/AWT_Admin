@@ -13,11 +13,16 @@ import {
   Col,
 } from "react-bootstrap";
 import { useState  , useEffect} from "react";
-function TableList() {
+import axios from "axios";
+function BusinessUnit() {
   const [modal, setModal] = React.useState(false);
+  const [companies, setCompanies] = React.useState([]);
+  const [img, setImg] = useState();
+  const [units, setUnits] = React.useState([]);
   const toggle = () => setModal(!modal);
   
-  const [state, setstate] = useState({
+  const [state, setState] = useState({
+    company_id:null,
     title: "",
     description: "",
     image: "",
@@ -35,14 +40,90 @@ function TableList() {
     const name = e.target.name;
     const value = e.target.value;
     
-    setstate({
+    setState({
       ...state,
       [name]: value,
     });
   }
 
   const submitHandler = e => {
+   
+    
+    e.preventDefault();
+
+    axios
+    .post(
+      `https://api.zalimburgers.com//awt-api/company_service`,
+      state,
+      { headers: { 'content-type': 'application/json' } },
+    )
+    .then(response => {
+     
+      var formData = new FormData();
+      formData.append('imageFile', img);
+      console.log(img);
+   
+      //  console.log(response.data.data);
+      axios
+        .post(
+          `https://api.zalimburgers.com/awt-api/company_service/updateCompanyImage/${response.data.data.results.insertId}`,
+          formData,
+       
+          {},
+         
+        )
+        .then(res => {
+         
+           getBusinessUnits()
+           setState({
+             title:'',
+             description:'',
+              company_id:null,
+              image:''
+           })
+
+           setImg('')
+           toggle()
+         
+        })
+        .catch(error => {
+         
+      
+          console.log(error);
+        });
+
+      console.log(response.data);
+    })
+    .catch(error => {
+      console.log(error);
+    });
+
+
   }
+
+  useEffect(() => {
+  
+   getBusinessCompanies()
+   getBusinessUnits()
+    
+  }, []);
+
+  
+  function getBusinessCompanies(){
+    axios
+    .get(`https://api.zalimburgers.com/awt-api/company`)
+    .then(res =>  setCompanies(res.data.data))
+    .catch(err => console.log(err));
+  }
+
+  function getBusinessUnits(){
+    axios
+    .get(`https://api.zalimburgers.com/awt-api/company_service`)
+    .then(res =>  setUnits(res.data.data))
+    .catch(err => console.log(err));
+  }
+
+
   return (
     <>
       <Container fluid>
@@ -56,7 +137,7 @@ function TableList() {
           <Col md="12">
             <Card className="strpied-tabled-with-hover">
               <Card.Header>
-                <Card.Title as="h4">Striped Table with Hover</Card.Title>
+                <Card.Title as="h4">Business Units</Card.Title>
                 <p className="card-category">
                   Here is a subtitle for this table
                 </p>
@@ -66,62 +147,31 @@ function TableList() {
                   <thead>
                     <tr>
                       <th className="border-0">ID</th>
-                      <th className="border-0">Name</th>
-                      <th className="border-0">Salary</th>
-                      <th className="border-0">Country</th>
-                      <th className="border-0">City</th>
+                      <th className="border-0">Title</th>
+                      <th className="border-0">Description</th>
+                      <th className="border-0">Image</th>
+                     
                     </tr>
                   </thead>
                   <tbody>
-                    <tr>
-                      <td>1</td>
-                      <td>Dakota Rice</td>
-                      <td>$36,738</td>
-                      <td>Niger</td>
-                      <td>Oud-Turnhout</td>
-                    </tr>
-                    <tr>
-                      <td>2</td>
-                      <td>Minerva Hooper</td>
-                      <td>$23,789</td>
-                      <td>Curaçao</td>
-                      <td>Sinaai-Waas</td>
-                    </tr>
-                    <tr>
-                      <td>3</td>
-                      <td>Sage Rodriguez</td>
-                      <td>$56,142</td>
-                      <td>Netherlands</td>
-                      <td>Baileux</td>
-                    </tr>
-                    <tr>
-                      <td>4</td>
-                      <td>Philip Chaney</td>
-                      <td>$38,735</td>
-                      <td>Korea, South</td>
-                      <td>Overland Park</td>
-                    </tr>
-                    <tr>
-                      <td>5</td>
-                      <td>Doris Greene</td>
-                      <td>$63,542</td>
-                      <td>Malawi</td>
-                      <td>Feldkirchen in Kärnten</td>
-                    </tr>
-                    <tr>
-                      <td>6</td>
-                      <td>Mason Porter</td>
-                      <td>$78,615</td>
-                      <td>Chile</td>
-                      <td>Gloucester</td>
-                    </tr>
+                    {units.map((unit,i)=>(
+                          <tr>
+                          <td>{i+1}</td>
+                          <td>{unit.title}</td>
+                          <td>{unit.description}</td>
+                          <td><img style={{height:'60px',width:'60px'}} src={`https://api.zalimburgers.com/${unit.image}`}/></td>
+                          </tr> 
+                    ))
+                     
+                    }
+                    
                   </tbody>
                 </Table>
               </Card.Body>
             </Card>
           </Col>
           <Col md="12">
-            <Card className="card-plain table-plain-bg">
+            {/* <Card className="card-plain table-plain-bg">
               <Card.Header>
                 <Card.Title as="h4">Table on Plain Background</Card.Title>
                 <p className="card-category">
@@ -185,7 +235,7 @@ function TableList() {
                   </tbody>
                 </Table>
               </Card.Body>
-            </Card>
+            </Card> */}
           </Col>
         </Row>
       </Container>
@@ -198,17 +248,18 @@ function TableList() {
           <label for="validationDefault01" class="form-label">
               select Units
             </label>
-          <select class="form-select" aria-label="Default select example">
+          <select class="form-select" name="company_id" onChange={(e)=>handleChange(e)} aria-label="Default select example">
   <option selected>Open this select menu</option>
-  
-  <option value="Public Listed Companies"> Public Listed Companies </option>
-  <option value="Public UnListed Companies2"> Public UnListed Companies </option>
-  <option value="Private Limited Companies">Private Limited Companies</option>
-  <option value="Other Trust Units"> Other Trust Units </option>
+  {companies && companies.map((company)=>(
+  <option value={company.id}> {company.name} </option>
+  ))
+
+  }
+
 </select>
 <br></br>
             <label for="validationDefault01" class="form-label">
-              Main Heading
+              Title
             </label>
             <input
               type="text"
@@ -249,7 +300,7 @@ function TableList() {
           </div>
         </ModalBody>
         <ModalFooter>
-          <Button color="primary"   type="submit"   onClick={submitHandler}    >
+          <Button color="primary"    onClick={(e)=>submitHandler(e)} >
             Add Business Unit
           </Button>
         </ModalFooter>
@@ -258,4 +309,4 @@ function TableList() {
   );
 }
 
-export default TableList;
+export default BusinessUnit;

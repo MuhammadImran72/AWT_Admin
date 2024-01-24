@@ -18,7 +18,8 @@
 import Dashboard from "views/Dashboard.js";
 //import UserProfile from "views/UserProfile.js";
 import MDMessage from "views/MDMessage";
-import TableList from "views/TableList.js";
+import BusinessUnit from "views/BusinessUnit";
+//import TableList from "views/TableList.js";
 import Typography from "views/Typography.js";
 import Icons from "views/Icons.js";
 import Maps from "views/Maps.js";
@@ -42,17 +43,17 @@ const dashboardRoutes = [
     layout: "/admin"
   },
   {
-    path: "/user",
+    path: "/md-message",
     name: "MD Message",
     icon: "nc-icon nc-circle-09",
     component: MDMessage,
     layout: "/admin"
   },
   {
-    path: "/table",
+    path: "/business-unit",
     name: "Busines Units",
     icon: "nc-icon nc-notes",
-    component: TableList,
+    component: BusinessUnit,
     layout: "/admin"
   },
   // {
