@@ -293,6 +293,12 @@ select.form-select {
   padding: 10px;
   border: 2px solid #eeee;
 }
+
+.samebox {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
 @media (min-width: 992px) {
   .fixed-plugin .dropdown .dropdown-menu {
     -webkit-transform: translateY(-50%);

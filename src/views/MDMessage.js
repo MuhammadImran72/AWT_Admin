@@ -124,6 +124,11 @@ function getMDMessage() {
   return (
     <>
       <Container fluid>
+      <div className="row">
+          <div className="col-lg-12">
+            <h3> In the dashboard, within the MD messages section, we are incorporating features such as Rank, Post/Name, personal information/description, and image.</h3>
+            </div>
+            </div>
         <Row>
           <Col md="8">
             <Card>

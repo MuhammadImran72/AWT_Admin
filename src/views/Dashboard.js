@@ -117,7 +117,7 @@ function getsliders() {
 
       <div className="row">
           <div className="col-lg-12">
-            <h3> Army Welfare Trust Change Hero Slider Content</h3>
+            <h3> In the dashboard, we are currently enhancing the Hero Sliding Content by incorporating a title, description, and a featured image.</h3>
             </div>
             </div>
         <div className="row">
